@@ -27,10 +27,6 @@ body {
   box-sizing: border-box;
 }
 
-h1, h2, h3, h4, h5, h6 {
-  margin: 0;
-}
-
 h2 {
   color: #292929;
   font-weight: 600;
@@ -248,6 +244,7 @@ nav ul li a {
   background: url("../images/home.jpg") repeat scroll center center / cover;
   height: 100vh;
   width: 100%;
+  overflow: auto;
 }
 
 
@@ -266,6 +263,11 @@ nav ul li a {
   margin-bottom: 10px;
   text-transform: uppercase;
   color: #fff;
+}
+
+.form-h1 {
+  color: unset !important;
+  margin-bottom: unset !important;
 }
 
 .header-content p {
