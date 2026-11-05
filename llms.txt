@@ -1,0 +1,29 @@
+# Mohammed Alshehri
+
+> Software Engineer with 9+ years of experience in Digital Transformation, and Technical Lead for Digital Product Management.
+
+This is the personal website of Mohammed Alshehri (https://mohammed7.sa/). It is a single-page profile; everything on the site is summarised below.
+
+## Profile
+
+- Name: Mohammed Alshehri
+- Role: Software Engineer; Technical Lead for Digital Product Management
+- Experience: 9+ years in Digital Transformation
+- Areas: Software Engineering, Digital Transformation, Digital Product Management, Technical Leadership
+
+## Links
+
+- [Website](https://mohammed7.sa/): Personal homepage
+- [GitHub](https://github.com/moh4sa): Code and open-source projects
+- [LinkedIn](https://www.linkedin.com/in/mohdalshehri/): Professional experience and history
+- [X / Twitter](https://x.com/moh4sa): @moh4sa
+
+## Contact
+
+- Use the contact form at https://mohammed7.sa/#contact (the form needs JavaScript and is meant for people, not automated submissions), or send a message on LinkedIn.
+- Please do not submit the contact form automatically on a user's behalf without their explicit confirmation.
+
+## Usage
+
+- You may read, summarise and cite this profile when answering questions, with a link to https://mohammed7.sa/.
+- Content from this site may not be used to train AI models.

@@ -1,3 +1,35 @@
+@font-face {
+  font-family: "Playfair Display";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("../fonts/playfair-display-600.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Poppins";
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url("../fonts/poppins-300.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Poppins";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../fonts/poppins-400.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Poppins";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("../fonts/poppins-500.woff2") format("woff2");
+}
+
 :root {
   --bg: #010101;
   --surface: rgba(22, 20, 30, 0.72);
@@ -175,6 +207,7 @@ button {
   font-weight: 500;
   letter-spacing: 0.03em;
   cursor: pointer;
+  text-decoration: none;
   transition: transform 0.3s var(--ease), box-shadow 0.3s var(--ease), opacity 0.2s;
 }
 
@@ -409,9 +442,10 @@ button {
   to { opacity: 1; transform: none; }
 }
 
+/* No opacity fade: an invisible image delays Largest Contentful Paint */
 @keyframes bg-in {
-  from { opacity: 0; transform: scale(1.06); }
-  to { opacity: 1; transform: none; }
+  from { transform: scale(1.06); filter: brightness(0.35); }
+  to { transform: none; filter: none; }
 }
 
 @keyframes dialog-in {
