@@ -1,157 +1,129 @@
-/*global $, jQuery, alert*/
-$(document).ready(function() {
-
+(function () {
   'use strict';
 
-  // ========================================================================= //
-  //  //SMOOTH SCROLL
-  // ========================================================================= //
+  var EMAILJS_PUBLIC_KEY = 'mn6MdiuVv7X7O_ZRu';
+  var EMAILJS_SERVICE_ID = 'default_service';
+  var EMAILJS_TEMPLATE_ID = 'template_pq3b2gk';
 
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  $(document).on("scroll", onScroll);
+  document.getElementById('year').textContent = new Date().getFullYear();
 
-  $('a[href^="#"]').on('click', function(e) {
-    e.preventDefault();
-    $(document).off("scroll");
+  // ---------- Typewriter ----------
+  var typed = document.querySelector('.typed');
+  if (typed && !reduceMotion) {
+    var words = typed.dataset.words.split('|');
+    var wordIndex = 0;
+    var charIndex = words[0].length;
+    var deleting = true;
 
-    $('a').each(function() {
-      $(this).removeClass('active');
-      if ($(window).width() < 768) {
-        $('.nav-menu').slideUp();
+    var tick = function () {
+      var word = words[wordIndex];
+      charIndex += deleting ? -1 : 1;
+      typed.textContent = word.slice(0, charIndex);
+
+      var delay = deleting ? 45 : 90;
+      if (!deleting && charIndex === word.length) {
+        deleting = true;
+        delay = 2200;
+      } else if (deleting && charIndex === 0) {
+        deleting = false;
+        wordIndex = (wordIndex + 1) % words.length;
+        delay = 400;
       }
-    });
-
-    $(this).addClass('active');
-
-    var target = this.hash,
-        menu = target;
-
-    target = $(target);
-    $('html, body').stop().animate({
-      'scrollTop': target.offset().top - 80
-    }, 500, 'swing', function() {
-      window.location.hash = target.selector;
-      $(document).on("scroll", onScroll);
-    });
-  });
-
-
-  function onScroll(event) {
-    if ($('.home').length) {
-      var scrollPos = $(document).scrollTop();
-      $('nav ul li a').each(function() {
-        var currLink = $(this);
-        var refElement = $(currLink.attr("href"));
-      });
-    }
+      setTimeout(tick, delay);
+    };
+    setTimeout(tick, 2500);
   }
 
-  // ========================================================================= //
-  //  //NAVBAR SHOW - HIDE
-  // ========================================================================= //
+  // ---------- Contact dialog ----------
+  var dialog = document.getElementById('contact');
+  var form = document.getElementById('contact-form');
+  var submit = document.getElementById('contact-submit');
+  var status = document.getElementById('contact-status');
+  var submitLabel = submit.textContent;
 
+  var setStatus = function (message, state) {
+    status.textContent = message;
+    status.dataset.state = state || '';
+  };
 
-  $(window).scroll(function() {
-    var scroll = $(window).scrollTop();
-    if (scroll > 200 ) {
-      $("#main-nav, #main-nav-subpage").slideDown(700);
-      $("#main-nav-subpage").removeClass('subpage-nav');
-    } else {
-      $("#main-nav").slideUp(700);
-      $("#main-nav-subpage").hide();
-      $("#main-nav-subpage").addClass('subpage-nav');
+  var openContact = function () {
+    setStatus('');
+    dialog.showModal();
+    form.querySelector('input').focus();
+  };
+
+  document.querySelectorAll('[data-open-contact]').forEach(function (el) {
+    el.addEventListener('click', openContact);
+  });
+
+  // Allow linking straight to the form: https://…/#contact
+  if (window.location.hash === '#contact') openContact();
+
+  document.querySelectorAll('[data-close-contact]').forEach(function (el) {
+    el.addEventListener('click', function () {
+      dialog.close();
+    });
+  });
+
+  // Close when clicking the backdrop
+  dialog.addEventListener('click', function (event) {
+    if (event.target === dialog) dialog.close();
+  });
+
+  form.addEventListener('input', function (event) {
+    if (event.target.getAttribute('aria-invalid') === 'true' && event.target.checkValidity()) {
+      event.target.removeAttribute('aria-invalid');
     }
   });
 
-  // ========================================================================= //
-  //  // RESPONSIVE MENU
-  // ========================================================================= //
+  form.addEventListener('submit', function (event) {
+    event.preventDefault();
 
-  $('.responsive').on('click', function(e) {
-    $('.nav-menu').slideToggle();
-  });
-
-  // ========================================================================= //
-  //  Typed Js
-  // ========================================================================= //
-
-  var typed = $(".typed");
-
-  $(function() {
-    typed.typed({
-      strings: ["Mohammed Alshehri.", "Software Engineer."],
-      typeSpeed: 100,
-      loop: true,
-    });
-  });
-
-
-  // ========================================================================= //
-  //  Owl Carousel Services
-  // ========================================================================= //
-
-
-  $('.services-carousel').owlCarousel({
-      autoplay: true,
-      loop: true,
-      margin: 20,
-      dots: true,
-      nav: false,
-      responsiveClass: true,
-      responsive: { 0: { items: 1 }, 768: { items: 2 }, 900: { items: 4 } }
+    var fields = Array.prototype.slice.call(form.querySelectorAll('input[required], textarea[required]'));
+    var firstInvalid = null;
+    fields.forEach(function (field) {
+      var valid = field.value.trim() !== '' && field.checkValidity();
+      field.setAttribute('aria-invalid', valid ? 'false' : 'true');
+      if (!valid && !firstInvalid) firstInvalid = field;
     });
 
+    if (firstInvalid) {
+      setStatus('Please fill in all fields with a valid email address.', 'error');
+      firstInvalid.focus();
+      return;
+    }
 
-  // ========================================================================= //
-  //  Porfolio isotope and filter
-  // ========================================================================= //
+    // Honeypot filled in: pretend success, send nothing
+    if (form.elements.company.value) {
+      form.reset();
+      setStatus('Thanks! Your message has been sent.', 'success');
+      return;
+    }
 
+    if (!window.emailjs) {
+      setStatus('The mail service could not be loaded. Please try again later.', 'error');
+      return;
+    }
 
-  var portfolioIsotope = $('.portfolio-container').isotope({
-    itemSelector: '.portfolio-thumbnail',
-    layoutMode: 'fitRows'
+    submit.disabled = true;
+    submit.textContent = 'Sending…';
+    setStatus('');
+
+    window.emailjs
+      .sendForm(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, form, { publicKey: EMAILJS_PUBLIC_KEY })
+      .then(function () {
+        form.reset();
+        fields.forEach(function (field) { field.removeAttribute('aria-invalid'); });
+        setStatus('Thanks! Your message has been sent. I\'ll be in touch soon.', 'success');
+      }, function (err) {
+        console.error('EmailJS error:', err);
+        setStatus('Sorry, something went wrong. Please try again in a moment.', 'error');
+      })
+      .then(function () {
+        submit.disabled = false;
+        submit.textContent = submitLabel;
+      });
   });
-
-  $('#portfolio-flters li').on( 'click', function() {
-    $("#portfolio-flters li").removeClass('filter-active');
-    $(this).addClass('filter-active');
-
-    portfolioIsotope.isotope({ filter: $(this).data('filter') });
-  });
-
-
-  // ========================================================================= //
-  //  magnificPopup
-  // ========================================================================= //
-
-  var magnifPopup = function() {
-    $('.popup-img').magnificPopup({
-      type: 'image',
-      removalDelay: 300,
-      mainClass: 'mfp-with-zoom',
-      gallery: {
-        enabled: true
-      },
-      zoom: {
-        enabled: true, // By default it's false, so don't forget to enable it
-
-        duration: 300, // duration of the effect, in milliseconds
-        easing: 'ease-in-out', // CSS transition easing function
-
-        // The "opener" function should return the element from which popup will be zoomed in
-        // and to which popup will be scaled down
-        // By defailt it looks for an image tag:
-        opener: function(openerElement) {
-          // openerElement is the element on which popup was initialized, in this case its <a> tag
-          // you don't need to add "opener" option if this code matches your needs, it's defailt one.
-          return openerElement.is('img') ? openerElement : openerElement.find('img');
-        }
-      }
-    });
-  };
-
-
-  // Call the functions
-  magnifPopup();
-
-});
+})();
